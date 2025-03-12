@@ -1,0 +1,8 @@
+streamlit
+pandas
+seaborn
+scikit-learn
+python-dotenv
+google-generativeai
+openpyxl  # Required for reading/writing Excel files
+pyarrow  
