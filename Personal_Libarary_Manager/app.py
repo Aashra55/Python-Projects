@@ -2,24 +2,29 @@ import streamlit as st
 import os
 import json
 
+# File to store book data
 LIBRARY = "books_data.json"
 
+# Function to load books from the JSON file
 def load_books():
     if not os.path.exists(LIBRARY):
+        # Create an empty JSON file if it doesn't exist
         with open (LIBRARY, "w") as file:
             json.dump([], file)
         return []
     else:
         try:
             with open(LIBRARY, "r") as file:
-                return json.load(file)
+                return json.load(file) # Load and return book data
         except(FileNotFoundError, json.JSONDecodeError):
-            return []
+            return [] # Return an empty list if there's an error
 
+# Function to save book data to the JSON file
 def save_books(book):
     with open(LIBRARY, "w") as file:
-        json.dump(book, file, indent=4)
+        json.dump(book, file, indent=4) # Save book list with indentation
 
+# Function to add a new book
 def add_book(name, content, author):
     books = load_books()
     books.append({
@@ -27,21 +32,25 @@ def add_book(name, content, author):
         "content": content,
         "author": author
     })
-    save_books(books)
+    save_books(books) # Save updated book list
 
+# Function to remove a book by name
 def remove_book(name):
     books = load_books()
+     # Ignore case and trim spaces for comparison
     updated_books = [book for book in books if book["name"].strip().lower() != name.strip().lower()]
     if len(updated_books) == len(books):
-        st.warning(f"Book **{name}** not found!")
+        st.warning(f"Book **{name}** not found!")  # Show warning if book isn't found
     else: 
-        save_books(updated_books)
+        save_books(updated_books) # Save the updated book list
         st.success(f"Book **{name}** removed successfully!")
-        
+
+# Function to update book details        
 def update_book(input_name,name, content, author):
     books = load_books()
     for book in books:
         if book["name"].strip().lower() == input_name.strip().lower():
+            # Update book details only if a new value is provided
             if name:
                 book["name"] = name
             if content:
@@ -54,6 +63,7 @@ def update_book(input_name,name, content, author):
         
 # Streamlit UI
 
+# UI Configuration
 st.set_page_config(
     page_title="Personal Library Manager",
     page_icon="📚", 
@@ -62,11 +72,13 @@ st.set_page_config(
 
 st.title("📚 Personal Library Manager")
 
+# Sidebar Navigation Menu
 option = st.sidebar.radio(
     "🔍 **What would you like to do?**",
     ["➕ Add a Book", "📖 View Books", "❌ Delete a Book", "✏️ Update a Book", "🔎 Search for a Book"]
 )    
 
+# Add a New Book Section
 if option == "➕ Add a Book":
     st.subheader("➕ Add a Book")
     name = st.text_input("Book Name")
@@ -79,7 +91,8 @@ if option == "➕ Add a Book":
         else:
             add_book(name, content, author)
             st.success(f"Book **{name}** added successfully!")
-        
+
+# View Books Section        
 elif option == "📖 View Books":
     st.subheader("📔 **My Library**")
     st.markdown("<br>", unsafe_allow_html=True)
@@ -93,12 +106,14 @@ elif option == "📖 View Books":
     else:
         st.info("No books found in your library.")
     
+# Delete a Book Section
 elif option == "❌ Delete a Book":
     st.subheader("❌ Delete a Book")
     name = st.text_input("Name of book")
     if st.button("🧹 Remove Book"):
         remove_book(name)
         
+# Update a Book Section       
 elif option == "✏️ Update a Book":
     st.subheader("✏️ Update a Book")
     st.warning("Please enter the name of the book you want to update.")
@@ -116,7 +131,8 @@ elif option == "✏️ Update a Book":
             st.error("Nothing to update!")
         else:
             update_book(input_name, name, content, author)
-            
+
+# Search for a Book Section         
 elif option == "🔎 Search for a Book":
     st.subheader("🔎 Search for a Book")
     books = load_books()
@@ -130,4 +146,5 @@ elif option == "🔎 Search for a Book":
                 st.markdown(f"**Content:** {book['content']}")
             else:
                 st.warning(f"Book **{name}** not found!")    
+    
     
