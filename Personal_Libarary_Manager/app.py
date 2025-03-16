@@ -49,7 +49,7 @@ def remove_book(name):
 def update_book(input_name,name, content, author):
     books = load_books()
     for book in books:
-        if book["name"].strip().lower() == input_name.strip().lower():
+        if book["name"] == input_name:
             # Update book details only if a new value is provided
             if name:
                 book["name"] = name
@@ -59,10 +59,9 @@ def update_book(input_name,name, content, author):
                 book["author"] = author
             save_books(books)
             st.success(f"Book **{input_name}** updated successfully!")
-            break
         
 # Streamlit UI
-
+ 
 # UI Configuration
 st.set_page_config(
     page_title="Personal Library Manager",
@@ -108,16 +107,20 @@ elif option == "📖 View Books":
     
 # Delete a Book Section
 elif option == "❌ Delete a Book":
+    books = load_books()
+    books_name = [book["name"] for book in books]
     st.subheader("❌ Delete a Book")
-    name = st.text_input("Name of book")
+    name = st.selectbox("Select Book", books_name)
     if st.button("🧹 Remove Book"):
         remove_book(name)
         
 # Update a Book Section       
 elif option == "✏️ Update a Book":
+    books = load_books()
+    book_name = [book["name"] for book in books]
     st.subheader("✏️ Update a Book")
     st.warning("Please enter the name of the book you want to update.")
-    input_name = st.text_input("Name of book")
+    input_name = st.selectbox("Select Book Name", book_name)
     st.markdown("<br>", unsafe_allow_html=True)
     st.warning("Please fill in the fields you want to update.")
     name = st.text_input("Book Name")
@@ -129,7 +132,7 @@ elif option == "✏️ Update a Book":
             st.error("Please fill out the required fields!")
         elif input_name and not name and not content and not author:
             st.error("Nothing to update!")
-        else:
+        elif input_name and (name or content or author):
             update_book(input_name, name, content, author)
 
 # Search for a Book Section         
