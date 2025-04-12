@@ -57,9 +57,14 @@ if "failed_attempts" not in st.session_state:
 if "page" not in st.session_state:
     st.session_state.page = "login"
 
+# 📌 Initialize session state for current user
+if "current_user" not in st.session_state:
+    st.session_state.current_user = None
+
 # 📌 Authorization page function
 def auth_page():
-    st.title("🔑 Authorization Page")
+    st.title("🔒 Secure Data Encryption System")
+    st.subheader("🔑 Authorization Page")
     st.write("Please create your account to access the system.")
     username = st.text_input("Enter Username: ")
     password = st.text_input("Enter Password: ", type="password")
@@ -69,6 +74,7 @@ def auth_page():
             if username in st.session_state.users_data:
                 st.error("❌ Username already exists! Please choose another one.")
             else:
+                st.session_state.current_user = username
                 hashed_password = hash_passkey(password)
                 st.session_state.users_data[username] = hashed_password
                 st.success("✅ Account created successfully!")
@@ -81,13 +87,15 @@ def auth_page():
 
 # 📌 Login page function
 def login_page():
-    st.title("🔑 Login Page")
+    st.title("🔒 Secure Data Encryption System")
+    st.subheader("🔑 Login Page")
     username = st.text_input("Enter Username: ")
     password = st.text_input("Enter Master Password: ", type="password")
     hashed_password = hash_passkey(password)
     if st.button("🔐 Login"):
         if username in st.session_state.users_data:
             if hashed_password == st.session_state.users_data[username]:
+                st.session_state.current_user = username
                 st.session_state.logged_in = True
                 st.session_state.failed_attempts = 0
                 st.success("✅ Login successful!")
@@ -101,19 +109,42 @@ def login_page():
         st.session_state.page = "auth"
         st.rerun()
 
+# 📌 Set up Streamlit Page Configuration
+st.set_page_config(
+    page_title="🔒 Secure Data System",
+    page_icon="🔑"
+)
+
 # 📌 Main application function
 def main_app():
     st.title("🔒 Secure Data Encryption System")
     
     # 📌 Sidebar navigation
-    menu = ["🏠 Home", "🔐 Store Data", "🔓 Retrieve Data", "📝 New Account", "🔒 Logout"]
+    menu = ["🏠 Home", "🔐 Store Data", "🔓 Retrieve Data", "🔏 Encrypted Data","🔒 Logout"]
     choice = st.sidebar.selectbox("📑 Navigation", menu)
 
     # 📌 Home Section
     if choice == "🏠 Home":
-        st.subheader("Welcome to Secure Data System")
-        st.write("Use this app to **securely store and retrieve data**.")
-        
+        st.title("🔒✨ Welcome to Secure Data System!")
+    
+        st.markdown("---")
+        st.markdown("""
+        ### 👋 Hello, and Welcome!
+        This is your **personal secure vault** for:
+    
+        - 🔐 **Storing sensitive data** safely
+        - 🔓 **Retrieving it whenever you need**
+        - 📃 **Managing your encrypted records**
+    
+        Protect your personal notes, secrets, or important information — 
+        **only you have the key!** 🔑
+        """)
+    
+        st.markdown("---")
+        st.info("👉 Use the sidebar menu to navigate through different sections.")
+    
+        st.success("✨ Start by storing your encrypted data in the **Store Data** section!")
+            
     # 📌 Store Data Section
     elif choice == "🔐 Store Data":
         st.subheader("🔐 Store Your Data Securely")
@@ -139,7 +170,10 @@ def main_app():
             if user_data and passkey:
                 hashed_passkey = hash_passkey(passkey)
                 encrypted_data = encrypt_data(user_data)
-                st.session_state.stored_data[encrypted_data] = hashed_passkey
+                username = st.session_state.current_user
+                if username not in st.session_state.stored_data:
+                    st.session_state.stored_data[username] = {}
+                st.session_state.stored_data[username][encrypted_data] = hashed_passkey
                 save_data()  # Save encrypted data to JSON file
                 st.success("✅ Data encrypted and stored successfully!")
                 st.write("📋 Your Encrypted Data:")
@@ -169,8 +203,10 @@ def main_app():
                 hashed_passkey_input = hash_passkey(passkey_input)
                     
                 # Check if the encrypted data exists and passkey matches
-                if encrypted_input in st.session_state.stored_data:
-                    if st.session_state.stored_data[encrypted_input] == hashed_passkey_input:
+                username = st.session_state.current_user
+                users_data = st.session_state.stored_data.get(username, {})
+                if encrypted_input in users_data:
+                    if users_data[encrypted_input] == hashed_passkey_input:
                         decrypted_data = decrypt_data(encrypted_input)
                         st.success("✅ Data Decrypted Successfully!")
                         st.write("📖 Your original data:")
@@ -191,27 +227,23 @@ def main_app():
             else:
                 st.error("⚠️ Please fill both fields!")
     
-    # 📌 New Account Section 
-    elif choice == "📝 New Account":
-        st.subheader("🔑 Create New Account")
-        username = st.text_input("Enter Username: ")
-        password = st.text_input("Enter Password: ", type="password")
-        
-        if st.button("🔒 Create New Account"):
-            if username and password:
-                if username in st.session_state.users_data:
-                    st.error("❌ Username already exists! Please choose another one.")
-                else:
-                    hashed_password = hash_passkey(password)
-                    st.session_state.users_data[username] = hashed_password
-                    st.success("✅ Account created Successfully!")
-                    save_user_data()
+    # 📌 Encrypted Data Section
+    elif choice == "🔏 Encrypted Data":
+        st.subheader("🔒 Encrypted Data")
+        username = st.session_state.current_user
+        if username in st.session_state.stored_data:
+            st.write("📋 Your Encrypted Data")
+            for encrypted_data in st.session_state.stored_data[username]:
+                st.code(encrypted_data)
+        else:
+            st.error("❌ No encrypted data found for the current user!")
     
     # 📌 Logout Section
     elif choice == "🔒 Logout":
         st.session_state.logged_in = False
         st.session_state.page = "login"
         st.session_state.stored_data = {}
+        st.session_state.current_user = None
         st.success("✅ Logged out successfully!")
         st.rerun()
 
