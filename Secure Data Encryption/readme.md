@@ -1,106 +1,114 @@
 # 🔒 Secure Data Encryption System
 
-Welcome to **Secure Data Encryption System** — a secure web app built with **Streamlit** that allows users to:
-- **Create accounts and log in securely**
-- **Encrypt and store sensitive data**
-- **Decrypt and retrieve their data using a secure passkey**
-
-All data is safely stored in local JSON files, protected by encryption and hashed passkeys.
+A simple yet powerful **Streamlit-based web app** for securely encrypting, storing, and retrieving sensitive data with your personal passkey.  
+This system uses **Fernet encryption** and **SHA256 hashing** for enhanced security, all handled locally with persistent JSON storage.
 
 ---
 
-## 📑 Features
+## 📜 Features
 
-✅ User authentication system with:
-- **Account creation**
-- **Login with hashed passwords**
-- **Multiple failed attempt handling**
+- 🔑 **User Authentication:**  
+  - Create an account with a username and master password  
+  - Login to access encrypted data securely  
 
-✅ Secure data encryption using:
-- **SHA256 for passkey hashing**
-- **Fernet symmetric encryption with derived keys**
+- 🔐 **Data Encryption:**  
+  - Enter your sensitive data and passkey  
+  - Data is encrypted using **Fernet symmetric encryption**  
+  - Encrypted data is saved locally and securely  
 
-✅ Simple and intuitive Streamlit web interface:
-- Store encrypted data with a passkey
-- Retrieve decrypted data with the correct passkey
-- Manage user accounts
-- Logout functionality
+- 🔓 **Data Decryption:**  
+  - Retrieve your encrypted data  
+  - Decrypt it by providing the correct passkey  
+  - Incorrect attempts are limited to **3 tries** before logout  
+
+- 📃 **View Encrypted Data:**  
+  - View a list of all your encrypted records safely
+
+- 🔒 **Persistent Storage:**  
+  - Data and user credentials are stored in JSON files (`data.json` & `users.json`)
+
+- ✨ **Clean, Interactive UI:**  
+  - Built using **Streamlit**  
+  - Sidebar navigation  
+  - User-friendly notifications  
 
 ---
 
-## 📂 Project Structure
+## 📁 Project Structure
 
+```bash
+📦 secure-data-encryption-system/
+ ├── 📄 data.json              # Encrypted data storage
+ ├── 📄 users.json             # User credentials (hashed passwords)
+ ├── 📄 app.py                 # Main Streamlit app code
+ └── 📄 README.md              # This file
 ```
-📁 your-project/
- ├── 📄 app.py               # Main Streamlit app
- ├── 📄 data.json            # Encrypted data storage (auto-generated)
- ├── 📄 users.json           # User credentials storage (auto-generated)
- ├── 📄 README.md            # Project documentation
-```
 
 ---
 
-## 💻 Installation & Setup
+## 🛠️ How It Works
 
-### 1️⃣ Install required libraries
+1. **Create an account**
+2. **Login with your credentials**
+3. **Store data** — type your message and set a passkey, encrypt and save it
+4. **Retrieve data** — paste your encrypted message and enter the passkey to decrypt it
+5. **View your encrypted records**
+6. **Logout securely**
 
+---
+
+## 📦 Installation & Usage
+
+### 🔽 Install Dependencies  
+Ensure Python 3.8+ is installed, then install required packages:
 ```bash
 pip install streamlit cryptography
 ```
 
-### 2️⃣ Run the Streamlit app
-
+### ▶️ Run the App
 ```bash
 streamlit run app.py
 ```
 
-The app will open in your browser at `http://localhost:8501`.
+---
+
+## 🔒 Security Highlights
+
+- **SHA256 Hashing:**  
+  Used to securely hash passkeys before storing and verifying.
+
+- **Fernet Encryption (Symmetric):**  
+  - Passkey is hashed to generate an encryption key  
+  - Data is encrypted with this key  
+  - Decryption requires the same passkey  
+
+- **Local Persistent Storage:**  
+  No external servers or databases — everything remains on your machine in JSON files.
 
 ---
 
-## 🔐 How It Works
+## 📌 To-Do / Ideas
 
-### 📌 Create a New Account
-- Go to **Create Account**
-- Enter a **username** and **password**
-- The password is hashed and stored securely
-
-### 📌 Login
-- Enter your **username** and **master password**
-- Password is hashed and compared for authentication
-- If failed 3 times → user is logged out automatically
-
-### 📌 Store Data
-- Enter data to encrypt
-- Enter a passkey (used only for this data)
-- Data is encrypted and saved locally with the hashed passkey
-
-### 📌 Retrieve Data
-- Enter the encrypted data string
-- Enter the correct passkey used while storing
-- The app decrypts and shows the original data
+- ⏳ Add **password recovery (security question / hint)**  
+- 📝 Add **note titles** / categories  
+- 🔒 Encrypt stored JSON files further  
+- 📊 Analytics (number of records stored, last login, etc.)
 
 ---
 
-## 🔒 Security Notes
+## 📚 Tech Stack
 
-- **Passwords and passkeys are never stored in plain text**
-- **Passwords are hashed with SHA256**
-- **Data is encrypted using Fernet symmetric encryption with keys derived from the passkey**
-- **Three-strike limit** on incorrect passkey attempts before logout
+- **Python 3**
+- **Streamlit**
+- **Cryptography**
+- **Hashlib**
+- **JSON / Local storage**
 
 ---
 
-## 📌 Technologies Used
+## 📑 License
 
-- [Streamlit](https://streamlit.io/)
-- [Cryptography](https://cryptography.io/)
-- [Python hashlib](https://docs.python.org/3/library/hashlib.html)
-- JSON file handling
+This project is for educational and personal use only.  
+Feel free to fork and improve!
 
-
-## 📝 Author
-
-**Aashra Saleem**  
-*Python + Streamlit developer, passionate about secure apps and clean UI.*
 
