@@ -55,7 +55,7 @@ if "failed_attempts" not in st.session_state:
 
 # 📌 Initialize page state
 if "page" not in st.session_state:
-    st.session_state.page = "login"
+    st.session_state.page = ""
 
 # 📌 Initialize session state for current user
 if "current_user" not in st.session_state:
@@ -63,11 +63,10 @@ if "current_user" not in st.session_state:
 
 # 📌 Authorization page function
 def auth_page():
-    st.title("🔒 Secure Data Encryption System")
-    st.subheader("🔑 Authorization Page")
+    st.subheader("🔑 Authorization")
     st.write("Please create your account to access the system.")
-    username = st.text_input("Enter Username: ")
-    password = st.text_input("Enter Password: ", type="password")
+    username = st.text_input("Enter Username: ", key="auth_username")
+    password = st.text_input("Enter Password: ", type="password", key="auth_password")
     
     if st.button("🔒 Create Account"):
         if username and password:
@@ -78,36 +77,32 @@ def auth_page():
                 hashed_password = hash_passkey(password)
                 st.session_state.users_data[username] = hashed_password
                 st.success("✅ Account created successfully!")
+                st.info("🔐 You can now login with your credentials.")
                 save_user_data()
-                st.session_state.logged_in = True
-    st.info("🔑 If you alreadty have an account, please login!")
-    if st.button("🔑 Log in"):
-        st.session_state.page = "login"
-        st.rerun()
+    st.warning("🔑 If you already have an account, please login!")
 
 # 📌 Login page function
 def login_page():
-    st.title("🔒 Secure Data Encryption System")
-    st.subheader("🔑 Login Page")
-    username = st.text_input("Enter Username: ")
-    password = st.text_input("Enter Master Password: ", type="password")
+    st.subheader("🔑 Login")
+    username = st.text_input("Enter Username: ", key="login_username")
+    password = st.text_input("Enter Master Password: ", type="password", key="login_password")
     hashed_password = hash_passkey(password)
     if st.button("🔐 Login"):
-        if username in st.session_state.users_data:
-            if hashed_password == st.session_state.users_data[username]:
-                st.session_state.current_user = username
-                st.session_state.logged_in = True
-                st.session_state.failed_attempts = 0
-                st.success("✅ Login successful!")
-                st.rerun() # Refresh the app and go to main page
+        if username and password:
+            if username in st.session_state.users_data:
+                if hashed_password == st.session_state.users_data[username]:
+                    st.session_state.current_user = username
+                    st.session_state.logged_in = True
+                    st.session_state.failed_attempts = 0
+                    st.success("✅ Login successful!")
+                    st.rerun() # Refresh the app and go to main page
+                else:
+                    st.error("❌ Incorrect password!")
             else:
-                st.error("❌ Incorrect password!")
+                st.error("❌ Username not found!")
         else:
-            st.error("❌ Username not found!")
+            st.error("⚠️ Please enter both username and password!")
     st.info("🔒 If you don't have an account, please create one!")
-    if st.button("📝 Create Account"):
-        st.session_state.page = "auth"
-        st.rerun()
 
 # 📌 Set up Streamlit Page Configuration
 st.set_page_config(
@@ -121,7 +116,7 @@ def main_app():
     
     # 📌 Sidebar navigation
     menu = ["🏠 Home", "🔐 Store Data", "🔓 Retrieve Data", "🔏 Encrypted Data","🔒 Logout"]
-    choice = st.sidebar.selectbox("📑 Navigation", menu)
+    choice = st.sidebar.selectbox("📑 Navigation", menu, key="selectbox1")
 
     # 📌 Home Section
     if choice == "🏠 Home":
@@ -241,11 +236,19 @@ def main_app():
     # 📌 Logout Section
     elif choice == "🔒 Logout":
         st.session_state.logged_in = False
-        st.session_state.page = "login"
         st.session_state.stored_data = {}
         st.session_state.current_user = None
         st.success("✅ Logged out successfully!")
         st.rerun()
+        
+# 📌 Authorization Page
+def front_page():
+    st.title("🔒Secure Data Encryption System")
+    tab1, tab2 = st.tabs(["🔑 Login", "📝 Create Account"])
+    with tab1:
+        login_page()
+    with tab2:
+        auth_page()
 
 # 📌 App control — show login or main app based on login status
 if st.session_state.logged_in:
@@ -255,7 +258,8 @@ elif st.session_state.page == "auth":
 elif st.session_state.page == "login":
     login_page()
 else:
-    login_page()
+    front_page()
+
 
 
 
