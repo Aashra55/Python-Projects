@@ -5,6 +5,7 @@ from cryptography.fernet import Fernet  # For encryption and decryption
 import base64          # For encoding and decoding data
 import os            # For file operations
 import json         # For JSON file operations
+import string      # For strong password
 
 DATA_FILE = "data.json"  # File to store encrypted data
 USERS_DATA = "users.json"  # File to store user data
@@ -73,12 +74,20 @@ def auth_page():
             if username in st.session_state.users_data:
                 st.error("❌ Username already exists! Please choose another one.")
             else:
-                st.session_state.current_user = username
-                hashed_password = hash_passkey(password)
-                st.session_state.users_data[username] = hashed_password
-                st.success("✅ Account created successfully!")
-                st.info("🔐 You can now login with your credentials.")
-                save_user_data()
+                if (
+                    any(char in string.ascii_lowercase for char in password) and
+                    any(char in string.ascii_uppercase for char in password) and
+                    any(char in string.digits for char in password) and
+                    any(char in string.punctuation for char in password)
+                ):
+                    st.session_state.current_user = username
+                    hashed_password = hash_passkey(password)
+                    st.session_state.users_data[username] = hashed_password
+                    st.success("✅ Account created successfully!")
+                    st.info("🔐 You can now login with your credentials.")
+                    save_user_data()
+                else:
+                    st.error("⚠️ Password must contain letters, digits, and special characters!")
     st.warning("🔑 If you already have an account, please login!")
 
 # 📌 Login page function
