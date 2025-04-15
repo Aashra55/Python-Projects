@@ -172,16 +172,24 @@ def main_app():
         
         if st.button("🔒 Encrypt & Save"):
             if user_data and passkey:
-                hashed_passkey = hash_passkey(passkey)
-                encrypted_data = encrypt_data(user_data)
-                username = st.session_state.current_user
-                if username not in st.session_state.stored_data:
-                    st.session_state.stored_data[username] = {}
-                st.session_state.stored_data[username][encrypted_data] = hashed_passkey
-                save_data()  # Save encrypted data to JSON file
-                st.success("✅ Data encrypted and stored successfully!")
-                st.write("📋 Your Encrypted Data:")
-                st.code(encrypted_data)
+                if (
+                    any(char in string.ascii_lowercase for char in passkey) and
+                    any(char in string.ascii_uppercase for char in passkey) and
+                    any(char in string.digits for char in passkey) and
+                    any(char in string.punctuation for char in passkey) 
+                ):
+                    hashed_passkey = hash_passkey(passkey)
+                    encrypted_data = encrypt_data(user_data)
+                    username = st.session_state.current_user
+                    if username not in st.session_state.stored_data:
+                        st.session_state.stored_data[username] = {}
+                    st.session_state.stored_data[username][encrypted_data] = hashed_passkey
+                    save_data()  # Save encrypted data to JSON file
+                    st.success("✅ Data encrypted and stored successfully!")
+                    st.write("📋 Your Encrypted Data:")
+                    st.code(encrypted_data)
+                else:
+                    st.error("⚠️ Password must contain letters, digits, and special characters!")
             else:
                 st.error("⚠️ Please enter both data and passkey!")
                 
